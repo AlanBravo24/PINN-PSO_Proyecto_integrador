@@ -8,17 +8,17 @@ from swarm.optimizers.pso_adam import pso
 from swarm.utils import multilayer_perceptron, decode
 import matplotlib.animation as animation
 
-# --- Configuración de Semillas ---
+#  Configuración de Semillas 
 np.random.seed(1234)
 tf.random.set_seed(1234)
 
-# --- Definición del Problema y Solución Analítica ---
 
-# Dominio espacial y temporal
+
+#Dominio espacial y temporal
 x_min, x_max = -10.0, 10.0
 t_min, t_max = 0.0, 0.5
 
-# Velocidad del Kink (solitón)
+# Velocidad del Kink
 c = 0.5
 c2_inv_sqrt = 1.0 / np.sqrt(1.0 - c**2)
 
@@ -26,23 +26,23 @@ def analytical_solution(x, t):
     """ Solución analítica (Kink) para Sine-Gordon """
     return 4.0 * np.arctan(np.exp((x - c * t) * c2_inv_sqrt))
 
-# --- Muestreo de Puntos de Entrenamiento ---
+# Muestreo de Puntos de Entrenamiento
 
-N_ic = 200  # Puntos de condición inicial (IC)
-N_b = 200   # Puntos de condición de borde (BC)
-N_f = 1000  # Puntos de colocación (residuales)
+N_ic = 200  # Puntos de condición inicial 
+N_b = 200 #Puntos de condición de borde 
+N_f = 1000 # Puntos de colocación 
 
-# Límites del dominio
+
 lb = np.array([x_min, t_min])
 ub = np.array([x_max, t_max])
 
-# Puntos de Condición Inicial (IC) (t=0)
+
 x_ic = np.linspace(x_min, x_max, N_ic).reshape(-1, 1)
 t_ic = np.zeros_like(x_ic)
 X_ic = np.hstack((x_ic, t_ic))
 u_ic = analytical_solution(x_ic, t_ic)
 
-# Puntos de Condición de Borde (BC) (x=-10 y x=10)
+#puntos de Condición de Borde  (x=-10 y x=10)
 t_bc = np.linspace(t_min, t_max, N_b).reshape(-1, 1)
 x_bc_left = np.full_like(t_bc, x_min)
 x_bc_right = np.full_like(t_bc, x_max)
@@ -53,7 +53,7 @@ X_bc_right = np.hstack((x_bc_right, t_bc))
 u_bc_left = analytical_solution(x_bc_left, t_bc)
 u_bc_right = analytical_solution(x_bc_right, t_bc)
 
-# Convertir a tensores
+#convertir a tensores
 X_ic_tf = tf.convert_to_tensor(X_ic, dtype=tf.float32)
 u_ic_tf = tf.convert_to_tensor(u_ic, dtype=tf.float32)
 X_bc_left_tf = tf.convert_to_tensor(X_bc_left, dtype=tf.float32)
@@ -62,13 +62,13 @@ X_bc_right_tf = tf.convert_to_tensor(X_bc_right, dtype=tf.float32)
 u_bc_right_tf = tf.convert_to_tensor(u_bc_right, dtype=tf.float32)
 
 
-# Puntos de Colocación (Residuales)
+#Puntos de Colocación
 X_f_data = lb + (ub - lb) * lhs(2, N_f)
 x_f_tf = tf.convert_to_tensor(X_f_data[:, 0:1], dtype=tf.float32)
 t_f_tf = tf.convert_to_tensor(X_f_data[:, 1:2], dtype=tf.float32)
 
 
-# --- Definición del Modelo de Física (PINN) ---
+#Definición del Modelo de Física (PINN
 
 def f_model(w, b, x, t):
     """ Calcula el residual de la PDE Sine-Gordon: f = u_tt - u_xx + sin(u) """
@@ -131,20 +131,20 @@ def format_time(seconds):
     h, m = divmod(m, 60)
     return h, m, s
 
-# --- Entrenamiento del Ensamble PSO-PINN ---
 
-# --- CAMBIO: AUMENTAR CAPACIDAD DE LA RED ---
-layer_sizes = [2] + 5 * [30] + [1] # 15 -> 30 neuronas
-pop_size = 20  # Tamaño del ensamble
-n_iter = 5000  # Iteraciones de entrenamiento
 
-# --- Mantener Hiperparámetros Exploratorios ---
+#cAMBIO: AUMENTAR CAPACIDAD DE LA RED-
+layer_sizes = [2] + 5 * [30] + [1] 
+pop_size = 20  
+n_iter = 5000  #Iteraciones de entrenamiento
+
+
 opt = pso(
     loss_grad(),
     layer_sizes,
     n_iter,
     pop_size,
-    # Hiperparámetros (beta, c1, c2)
+    
     0.99,   # beta (inercia)
     0.08,   # c1 (cognitivo)
     0.5,    # c2 (social)
@@ -153,7 +153,7 @@ opt = pso(
     verbose=True,
     gd_alpha=1e-3,          
 )
-# --- FIN DE CAMBIOS ---
+
 
 
 print("Iniciando entrenamiento...")
@@ -163,9 +163,8 @@ end = time.time()
 print("Tiempo transcurrido: %2d:%2d:%2d" % format_time(end - start))
 
 
-# --- Procesamiento de Resultados y Visualización ---
 
-# Rejilla para la visualización final
+#graficar
 uxn = 256
 utn = 100
 x_plot = np.linspace(x_min, x_max, uxn)
@@ -185,7 +184,7 @@ print("Pérdida Final (Last Loss): ", opt.loss_history[-1])
 error_u = np.linalg.norm(u_star_flat - mean, 2) / np.linalg.norm(u_star_flat, 2)
 print("Error L2: %e" % (error_u))
 
-# --- Animación ---
+
 
 time_steps = utn - 1
 fps = 15

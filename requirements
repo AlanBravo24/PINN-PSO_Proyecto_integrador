@@ -2,3 +2,4 @@ tensorflow
 matplotlib
 pydoe 
 tensorflow_probability
+tf-keras

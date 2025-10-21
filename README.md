@@ -29,3 +29,4 @@ pip install -e ./src
   year={2022}
 }
 ```
+Para reproducir los experimentos y generar las figuras basta con correr el archivo de python correspondiente a cada experimento.

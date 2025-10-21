@@ -179,9 +179,9 @@ Comparison and Animation
 """
 
 u_quad_flat = u_quad.T.flatten()[:, None]
-error_u = np.linalg.norm(u_quad_flat - u_PINN, 2) / np.linalg.norm(
-    u_quad_flat, 2
-)
+
+error_u = np.linalg.norm(u_quad_flat - u_PINN, 2) / np.linalg.norm(u_quad_flat, 2)
+
 print("nu = %.2f/pi" % (np.pi * nu))
 print("L2 Error = %e" % (error_u))
 print("Last Loss: ", opt.loss_history[-1])
