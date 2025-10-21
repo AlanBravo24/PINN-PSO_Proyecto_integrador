@@ -1,0 +1,12 @@
+setup.py
+swarm/__init__.py
+swarm/utils.py
+swarm.egg-info/PKG-INFO
+swarm.egg-info/SOURCES.txt
+swarm.egg-info/dependency_links.txt
+swarm.egg-info/top_level.txt
+swarm/optimizers/__init__.py
+swarm/optimizers/fss.py
+swarm/optimizers/gd.py
+swarm/optimizers/pso.py
+swarm/optimizers/pso_adam.py
