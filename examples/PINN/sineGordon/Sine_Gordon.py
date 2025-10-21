@@ -30,7 +30,7 @@ def analytical_solution(x, t):
 
 N_ic = 200  # Puntos de condición inicial 
 N_b = 200 #Puntos de condición de borde 
-N_f = 1000 # Puntos de colocación 
+N_f = 2500 # Puntos de colocación 
 
 
 lb = np.array([x_min, t_min])
@@ -106,7 +106,7 @@ def loss(w, b):
             tf.reduce_mean(tf.square(u_bc_right_tf - u_bc_right_pred))
 
     # Forzar el cumplimiento de los bordes (que definen el movimiento)
-    return mse_f + 50.0 * mse_ic + 200.0 * mse_b
+    return mse_f + 10.0 * mse_ic + 10.0 * mse_b
 
 def loss_grad():
     def _loss(w, b):
@@ -136,7 +136,7 @@ def format_time(seconds):
 #cAMBIO: AUMENTAR CAPACIDAD DE LA RED-
 layer_sizes = [2] + 5 * [30] + [1] 
 pop_size = 20  
-n_iter = 5000  #Iteraciones de entrenamiento
+n_iter = 2500  #Iteraciones de entrenamiento
 
 
 opt = pso(
@@ -151,7 +151,8 @@ opt = pso(
     # ---
     initialization_method="xavier",
     verbose=True,
-    gd_alpha=1e-3,          
+    gd_alpha=1e-3,  
+    c_decrease=True       
 )
 
 
