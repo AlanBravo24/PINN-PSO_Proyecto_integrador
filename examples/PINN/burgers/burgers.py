@@ -116,7 +116,7 @@ def loss(w, b):
     # Residual loss
     mse_f = tf.reduce_mean(tf.pow(f_pred, 2))
 
-    return 1.5 * mse_0 + mse_f + mse_lb + mse_ub
+    return  mse_0 + mse_f + mse_lb + mse_ub
 
 
 def loss_grad():

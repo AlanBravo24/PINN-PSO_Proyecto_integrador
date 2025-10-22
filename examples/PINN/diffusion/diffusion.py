@@ -160,6 +160,7 @@ preds = run_swarm(swarm, X_flat)
 mean = tf.squeeze(tf.reduce_mean(preds, axis=0))
 var = tf.squeeze(tf.math.reduce_std(preds, axis=0))
 err = np.linalg.norm(q_flat - mean, 2) / np.linalg.norm(q_flat, 2)
+print("Error u: %e" % (err))
 
 time_steps = utn  # total number of time steps in animation
 fps = 15  # frames/second of animation
