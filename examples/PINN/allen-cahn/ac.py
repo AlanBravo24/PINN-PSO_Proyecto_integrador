@@ -13,6 +13,22 @@ import matplotlib.animation as animation
 np.random.seed(1)
 tf.random.set_seed(1)
 
+def grad_decorator(loss_fn):
+    """
+    Decorador que toma una función de pérdida (w, b) -> loss_value
+    y la convierte en (w, b) -> (loss_value, grads)
+    """
+    def wrapper(w, b):
+        with tf.GradientTape() as tape:
+            tape.watch(w)
+            tape.watch(b)
+            # Llama a la función de pérdida original
+            loss_value = loss_fn(w, b) 
+        
+        trainable_variables = w + b
+        grads = tape.gradient(loss_value, trainable_variables)
+        return loss_value, grads
+    return wrapper
 
 f = open("AC.pckl", "rb")
 data = pickle.load(f)
@@ -119,6 +135,7 @@ def u_x_model(w, b, x, t):
     return u, u_x
 
 
+@grad_decorator
 @tf.function
 def loss(w, b):
 
@@ -144,18 +161,6 @@ def loss(w, b):
     return 10 * mse_u + 10 * mse_d + mse_f + mse_b
 
 
-def loss_grad():
-    def _loss(w, b):
-        with tf.GradientTape(persistent=True) as tape:
-            tape.watch(w)
-            tape.watch(b)
-            loss_value = loss(w, b)
-        trainable_variables = w + b
-        grads = tape.gradient(loss_value, trainable_variables)
-        return loss_value, grads
-
-    return _loss
-
 
 def run_swarm(swarm, X):
     swarm_y = []
@@ -176,7 +181,7 @@ pop_size = 100
 n_iter = 2000
 
 opt = pso(
-    loss_grad(),
+    loss,
     layer_sizes,
     n_iter,
     pop_size,

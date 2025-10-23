@@ -129,11 +129,7 @@ def loss(w, b):
 
 
 def run_swarm(swarm, X):
-    swarm_y = []
-    for particle in swarm:
-        w, b = decode(particle, layer_sizes)
-        swarm_y.append(multilayer_perceptron(w, b, X))
-    return swarm_y
+    return [multilayer_perceptron(w, b, X) for w, b in (decode(particle, layer_sizes) for particle in swarm)]
 
 def format_time(seconds):
     m, s = divmod(seconds, 60)

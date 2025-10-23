@@ -129,7 +129,7 @@ class pso:
         Returns:
             _type_: tf.Tensor
         """
-        return uniform(0, 1, [2, self.dim])[:, None]
+        return tf.random.uniform(shape=[2, 1, self.dim], minval=0.0, maxval=1.0)
 
     def update_p_best(self):
         """Updates the *p-best* positions."""
@@ -140,8 +140,12 @@ class pso:
 
     def update_g_best(self):
         """Update the *g-best* position."""
-        self.g = self.p[tf.math.argmin(input=self.f_p).numpy()[0]]
+        best_index = tf.math.argmin(self.f_p)[0]
+    
+        # tf.gather usa ese índice para seleccionar la partícula
+        self.g = tf.gather(self.p, best_index)
 
+    @tf.function
     def step(self):
         """It runs ONE step on the particle swarm optimization."""
         r1, r2 = self.get_randoms()
