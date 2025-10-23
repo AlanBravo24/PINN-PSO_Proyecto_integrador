@@ -13,6 +13,24 @@ np.random.seed(1234)
 tf.random.set_seed(1234)
 
 
+# Decorador
+
+def grad_decorator(loss_fn):
+    """
+    Decorador que toma una función de pérdida (w, b) -> loss_value
+    y la convierte en (w, b) -> (loss_value, grads)
+    """
+    def wrapper(w, b):
+        with tf.GradientTape() as tape:
+            tape.watch(w)
+            tape.watch(b)
+            # Llama a la función de pérdida original
+            loss_value = loss_fn(w, b) 
+        
+        trainable_variables = w + b
+        grads = tape.gradient(loss_value, trainable_variables)
+        return loss_value, grads
+    return wrapper
 
 #Dominio espacial y temporal
 x_min, x_max = -10.0, 10.0
@@ -90,7 +108,8 @@ def f_model(w, b, x, t):
     
     return f_u
 
-@tf.function
+@grad_decorator
+@tf.function(jit_compile=True)
 def loss(w, b):
     """ Función de pérdida total (Residual + IC + BC) """
     
@@ -108,16 +127,6 @@ def loss(w, b):
     # Forzar el cumplimiento de los bordes (que definen el movimiento)
     return mse_f + 10.0 * mse_ic + 10.0 * mse_b
 
-def loss_grad():
-    def _loss(w, b):
-        with tf.GradientTape(persistent=True) as tape:
-            tape.watch(w)
-            tape.watch(b)
-            loss_value = loss(w, b)
-        trainable_variables = w + b
-        grads = tape.gradient(loss_value, trainable_variables)
-        return loss_value, grads
-    return _loss
 
 def run_swarm(swarm, X):
     swarm_y = []
@@ -140,7 +149,7 @@ n_iter = 2500  #Iteraciones de entrenamiento
 
 
 opt = pso(
-    loss_grad(),
+    loss,
     layer_sizes,
     n_iter,
     pop_size,
